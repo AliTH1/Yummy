@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Yummy.Areas.ViewModels;
 using Yummy.DAL;
 using Yummy.Models;
 
@@ -18,11 +19,28 @@ namespace Yummy.Areas.Admin.Controllers
             _appDbContext = appDbContext;
         }
 
-        public async Task<ActionResult> Index()
+        public async Task<ActionResult> Index(int page=1, int take=8)
         {
-            return View(await _appDbContext.Products
+            List<Product> products = await _appDbContext.Products
+                .Skip((page-1)*take)
+                .Take(take)
                 .Include(s => s.Category)
-                .ToListAsync());
+                .ToListAsync();
+
+            int pageCount = await GetPageCount(take);
+
+            PaginationVM<Product> paginationVM = new()
+            {
+                Data = products,
+                PageCount = pageCount,
+                CurrentPage = page,
+                HasNext = page < pageCount,
+                HasPrevious = page > 1,
+                Take = take
+            };
+
+
+            return View(paginationVM);
         }
 
         public ActionResult Create()
@@ -66,6 +84,13 @@ namespace Yummy.Areas.Admin.Controllers
         public ActionResult Delete(int id)
         {
             return View();
+        }
+
+        public async Task<int> GetPageCount(int take)
+        {
+            int serviceCount = await _appDbContext.Products.CountAsync();
+
+            return (int)Math.Ceiling((double) serviceCount / take);
         }
     }
 }
