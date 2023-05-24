@@ -1,0 +1,41 @@
+﻿@using Yummy.Models;
+@model ICollection<Product>
+@{
+    int count = 1;
+}
+
+
+<div class="d-flex justify-content-end">
+    <a class="btn btn-success" asp-controller="Product" asp-action="Create">Create</a>
+</div>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Name</th>
+            <th scope="col">Ingredients</th>
+            <th scope="col">Price</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (Product product in Model)
+        {
+            <tr>
+                <th scope="row">@count</th>
+                <td>@product.Name</td>
+                <td>@product.Ingredients</td>
+                <td>@product.Price</td>
+
+                <td>
+                    <a class="btn btn-warning text-light" asp-area="Admin" asp-controller="Services" asp-action="Edit" asp-route-Id="@product.Id">
+                        <i class="mdi mdi-grease-pencil"></i>
+                    </a>
+                    <a class="btn btn-danger text-light" asp-area="Admin" asp-controller="Services" asp-action="Delete" asp-route-Id="@product.Id">
+                        <i class="mdi mdi-delete-forever"></i>
+                    </a>
+                </td>
+            </tr>
+            count++;
+        }
+    </tbody>
+</table>
